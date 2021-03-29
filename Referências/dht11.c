@@ -55,7 +55,7 @@ void read_dht11_dat()
 		{
 			/* shove each bit into the storage bytes */
 			dht11_dat[j / 8] <<= 1;
-			if ( counter > 16 )
+			if ( counter > 50 )
 				dht11_dat[j / 8] |= 1;
 			j++;
 		}
