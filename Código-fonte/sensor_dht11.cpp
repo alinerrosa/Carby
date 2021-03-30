@@ -43,7 +43,7 @@ void read_dht11_dat(){
 		}
 	}
 	if ((j >= 40) && (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF)))
-		printf( "Umidade = %d.%d %% Temperatura = %d.%d *C\n", dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3]);
+		cout << "Umidade = " << dht11_dat[0] << "." << dht11_dat[1] << " % Temperatura = " << dht11_dat[2] << "." << dht11_dat[3] << " *C" << '\n';
 }
 
 int main(){
