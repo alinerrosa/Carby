@@ -12,6 +12,8 @@ Air quality
 #include <time.h>
 #include <math.h>
 
+#include "dht11.h"
+
 #define VOLT_STEP 0.004883 // Voltagem na leitura da porta analogica 5/1023
 #define RL_MQ135 10000 // Valor da resistência de carga para o sensor MQ135
 #define R_STANDARD_MQ135 27338 // Valor de R0 para o sensor MQ135 com base em experiencia realizada
@@ -28,8 +30,8 @@ void loop() {
     float RS = 0;
     float rs_r0_ratio = 0;
     float PPM = 0;
-    //humidity = dht11.dht11_data();
-    //temperature = dht.readTemperature();
+    //humidity = read_dht11_dat();
+    //temperature = read_dht11_dat();
     delay(2000);
     /*********MQ-135|CO2*************/
     i_sensor_analog_reading = analogRead(SENSOR_ANALOG_PORT);
@@ -99,6 +101,7 @@ void mcp3008_read(uint8_t);
 int main(void)
 {
     // setup GPIO, this uses actual BCM pin numbers 
+    // gpioInitialise() 
     wiringPiSetupGpio();
     wiringPiSPISetup(1, 4*1000*1000);
     delay(50);
