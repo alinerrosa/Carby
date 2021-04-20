@@ -26,11 +26,13 @@ int i_sensor_analog_reading = 0;
 float R0 = 0;
 
 void loop() {
+    //int  *p_dht;
     float temperature, humidity;
     float RS = 0;
     float rs_r0_ratio = 0;
     float PPM = 0;
-    //humidity = read_dht11_dat();
+    //p_dht = read_dht11_dat()
+    //humidity = ;
     //temperature = read_dht11_dat();
     delay(2000);
     /*********MQ-135|CO2*************/
