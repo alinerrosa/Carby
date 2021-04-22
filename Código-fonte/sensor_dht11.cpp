@@ -10,6 +10,9 @@ using namespace std;
 #define DHTPIN 4
 bool ok = true;
 
+string formid = "1_q2E8SroEc5OOQh54l85XWK4mJrh9U7zLE_mN11dT_I";
+
+
 static unsigned cleanupPin = UINT_MAX;
 static bool verbose = false;
 
@@ -43,7 +46,7 @@ static void pulse_reader(int gpio, int level, uint32_t tick) {
     static enum pulse_state state = PS_IDLE;
     static uint64_t accum = 0;
     static int count = 0;
-    uint32_t len = tick - lastTick;
+    uint32_t len = tick - lastTick; // not handling rollover, you will get a bad read on that one
     lastTick = tick;
 
     switch (state) {
@@ -72,11 +75,13 @@ static void pulse_reader(int gpio, int level, uint32_t tick) {
 
   if (count == 40) {
       state = PS_IDLE;
+
       uint8_t parity = (accum & 0xff);
       uint8_t tempLow = ((accum>>8) & 0xff);
       uint8_t tempHigh = ((accum>>16) & 0xff);
       uint8_t humLow = ((accum>>24) & 0xff);
       uint8_t humHigh = ((accum>>32) & 0xff);
+
       uint8_t sum = tempLow + tempHigh + humLow + humHigh;
       bool valid = (parity == sum);
       
@@ -84,7 +89,10 @@ static void pulse_reader(int gpio, int level, uint32_t tick) {
         printf("{\"Temperature\": %d,%d, \"Humidity\": %d,%d}\n", tempHigh, tempLow, humHigh, humLow);
         string temp = to_string(tempHigh) + ',' + to_string(tempLow);
         string humi = to_string(humHigh) + ',' + to_string(humLow);
+        string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1076682711= +" + temp + "\" -d \"entry.1505376468= + " + humi + "\" -d \"entry.1031950862= 430\" -d submit=Submit;";
+        system(command.c_str());
         database << temp << ';' << humi << '\n';
+
       }
     }
     break;
@@ -110,7 +118,7 @@ int main( int argc, char **argv) {
     while (1) {
       gpioSetAlertFunc( pin, pulse_reader);
       read_dht11(pin);
-      gpioDelay( 100*1000); // wait 1/10 sec between tries
+      gpioDelay(60000000);
     }
     exit(2);
     return 0;
