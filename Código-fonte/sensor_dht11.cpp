@@ -10,8 +10,8 @@ using namespace std;
 #define DHTPIN 4
 bool ok = true;
 
-string formid = "1_q2E8SroEc5OOQh54l85XWK4mJrh9U7zLE_mN11dT_I";
-
+//string formid = "1_q2E8SroEc5OOQh54l85XWK4mJrh9U7zLE_mN11dT_I";
+string formid = "15IJEaBsBONEIt4QTXtlaNEV0Q7UbLJjDFw5itk2_eoY";
 
 static unsigned cleanupPin = UINT_MAX;
 static bool verbose = false;
@@ -39,7 +39,7 @@ static void pulse_reader(int gpio, int level, uint32_t tick) {
     ofstream database; 
     database.open ("database.csv", std::ofstream::out | std::ofstream::app);
     if(ok){
-      database << "Temperatura;Umidade\n";
+      //database << "Temperatura;Umidade\n";
     }
     ok = false;
     static uint32_t lastTick = 0;
@@ -86,10 +86,12 @@ static void pulse_reader(int gpio, int level, uint32_t tick) {
       bool valid = (parity == sum);
       
       if (valid) {
-        printf("{\"Temperature\": %d,%d, \"Humidity\": %d,%d}\n", tempHigh, tempLow, humHigh, humLow);
+        printf("{\"Temperatura\": %d,%d, \"Umidade\": %d,%d}\n", tempHigh, tempLow, humHigh, humLow);
         string temp = to_string(tempHigh) + ',' + to_string(tempLow);
         string humi = to_string(humHigh) + ',' + to_string(humLow);
-        string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1076682711= +" + temp + "\" -d \"entry.1505376468= + " + humi + "\" -d \"entry.1031950862= 430\" -d submit=Submit;";
+
+        //string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1076682711= +" + temp + "\" -d \"entry.1505376468= + " + humi + "\" -d \"entry.1031950862= 430\" -d submit=Submit;";
+        string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1115749519= +" + temp + "\" -d \"entry.460396820= + " + humi + "\" -d submit=Submit;";
         system(command.c_str());
         database << temp << ';' << humi << '\n';
 
