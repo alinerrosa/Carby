@@ -14,8 +14,12 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
+string formid = "19G0yK3KeaRI4AkYW-SpCNy2DJooWY-eOLfsvJWB4frQ";
 
 #define MAX_ADC_CH 8
 int selectedChannels[MAX_ADC_CH];
@@ -44,7 +48,7 @@ class MQ {
   int GAS_CO2 = 0;
   int Ro;
   int analogPin;
-  MQ() : Ro(85), analogPin(0) {}
+  MQ() : Ro(67), analogPin(0) {}
   MQ(int _ro, int _analogPin) {
     Ro = _ro;
     MQ_PIN = _analogPin;
@@ -182,9 +186,11 @@ int main(int argc, char *argv[]) {
                 mq->val = val;
                 //cout << "Val == " << val << '\n';
                 map<string, double> perc = mq->MQPercentage();
-                cout << "\r" << '\n';
-                cout << "\033[K" << '\n';
                 cout << "CO2: " << perc["GAS_CO2"] << " ppm\n";
+                string CO2 = to_string(perc["GAS_CO2"]);
+                std::replace( CO2.begin(), CO2.end(), '.', ','); 
+                string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.916980903= +" + CO2 + "\" -d submit=Submit;";
+                system(command.c_str());
                 sleep(60.0);
                 data[count + i] = val;
             }
