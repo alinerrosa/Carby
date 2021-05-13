@@ -25,6 +25,9 @@ using namespace std;
 #define MAX_ADC_CH 8
 
 #define DHTPIN 4
+#define PINO_Vm 23
+#define PINO_A 18
+#define PINO_Vd 17
 
 string x, y;
 
@@ -149,7 +152,7 @@ class MQ {
   int GAS_CO2 = 0;
   int Ro;
   int analogPin;
-  MQ() : Ro(120), analogPin(0) {}
+  MQ() : Ro(185), analogPin(0) {}
   MQ(int _ro, int _analogPin) {
     Ro = _ro;
     MQ_PIN = _analogPin;
@@ -306,12 +309,39 @@ int main(int argc, char *argv[]) {
     loop_done:
       map<string, double> perc = mq->MQPercentage();
       cout << "CO2: " << perc["GAS_CO2"] << " ppm\n";
+      string quality = "";
+      if (perc["GAS_CO2"] < 600.0) {
+        cout << "A qualidade do ar está boa" << '\n';
+        gpioSetMode(PINO_Vm, 0);
+        gpioSetMode(PINO_Vd, PI_ALT0);
+        gpioSetMode(PINO_A, 0);
+        quality = "Boa";
+      } else if (perc["GAS_CO2"] >= 600.0 && perc["GAS_CO2"] <= 1000.0) {
+        cout << "A qualidade do ar está média" << '\n';
+        gpioSetMode(PINO_Vm, 0);
+        gpioSetMode(PINO_Vd, 0);
+        gpioSetMode(PINO_A, PI_ALT0);
+        quality = "Media";
+      } else if (perc["GAS_CO2"] > 1000.0) {
+        cout << "A qualidade do ar está ruim" << '\n';
+        gpioSetMode(PINO_Vm, PI_ALT0);
+        gpioSetMode(PINO_Vd, 0);
+        gpioSetMode(PINO_A, 0);
+        quality = "Ruim";
+      }
       string CO2 = to_string(perc["GAS_CO2"]);
       replace(CO2.begin(), CO2.end(), '.', ','); 
+      string CO2_dininutivo = "";
+      for(char c:CO2){
+        if(c == ','){
+          break;
+        }
+        CO2_dininutivo += c;
+      }
       gpioSetAlertFunc(pin, pulse_reader);
       read_dht11(pin);
       if (x != "" && y != "") {
-        string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1076682711= +" + x + "\" -d \"entry.1505376468= + " + y + "\" -d \"entry.1031950862= " + CO2 + "\" -d submit=Submit;";
+        string command = "curl https://docs.google.com/forms/d/" + formid + "/formResponse -d ifq -d \"entry.1076682711= +" + x + "\" -d \"entry.1505376468= + " + y + "\" -d \"entry.1031950862= + " + CO2_dininutivo + "\" -d \"entry.41984470= + " + quality + "\" -d submit=Submit;";
         system(command.c_str());
         sleep(60.0);
       }
